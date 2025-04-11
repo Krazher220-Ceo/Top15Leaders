@@ -1,6 +1,8 @@
 import requests
 import json
 from datetime import datetime
+import os
+import subprocess
 
 def update_data():
     url = "https://www.gov.kz/api/v1/public/bnu/bnu-projects/903?size=1000&page=0&sort-by=id:desc"
@@ -38,10 +40,34 @@ def update_data():
         "update_date": update_date,
         "voting_status": "Голосование активно (с 5 по 24 апреля 2025 года)"
     }
-    # Используем путь для Render Disk
-    with open('/app/data/top15.json', 'w', encoding='utf-8') as f:
+
+    # Сохраняем top15.json локально
+    with open('top15.json', 'w', encoding='utf-8') as f:
         json.dump(data_to_save, f, ensure_ascii=False, indent=2)
     print("Топ-15 сохранен в top15.json")
+
+    # Пушим top15.json в репозиторий GitHub
+    try:
+        # Клонируем репозиторий (Render предоставит SSH доступ)
+        repo_dir = "/app/repo"
+        if not os.path.exists(repo_dir):
+            subprocess.run(["git", "clone", "git@github.com:Krazher220-Ceo/Top15Leaders.git", repo_dir], check=True)
+        os.chdir(repo_dir)
+
+        # Копируем top15.json в репозиторий
+        subprocess.run(["cp", "../top15.json", "."], check=True)
+
+        # Добавляем и коммитим изменения
+        subprocess.run(["git", "add", "top15.json"], check=True)
+        subprocess.run(["git", "commit", "-m", "Update top15.json"], check=True)
+
+        # Пушим изменения
+        subprocess.run(["git", "push", "origin", "main"], check=True)
+        print("top15.json успешно обновлен в репозитории GitHub.")
+    except Exception as e:
+        print(f"Ошибка при обновлении GitHub: {str(e)}")
+        return False
+
     return True
 
 if __name__ == '__main__':
