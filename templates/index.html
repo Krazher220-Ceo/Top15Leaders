@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Топ-15 проектов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .update-date, .voting-status {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 90%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        th:hover {
+            background-color: #45a049;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+        img {
+            max-width: 100px;
+            height: auto;
+            border-radius: 5px;
+        }
+        .status-approved {
+            color: green;
+            font-weight: bold;
+        }
+        .highlight-altynsarina {
+            background-color: #d4edda; /* Светло-зеленый фон */
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        function sortTable(column, order) {
+            const table = document.getElementById("projects-table");
+            const rows = Array.from(table.rows).slice(1);
+            rows.sort((a, b) => {
+                let aValue = a.cells[column].innerText;
+                let bValue = b.cells[column].innerText;
+                if (column === 2 || column === 4) {
+                    aValue = parseInt(aValue.replace(/\s/g, ''));
+                    bValue = parseInt(bValue.replace(/\s/g, ''));
+                }
+                if (order === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+            for (let i = 0; i < rows.length; i++) {
+                table.appendChild(rows[i]);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Топ-15 проектов по голосам</h1>
+    <div class="update-date">Обновлено: {{ update_date }}</div>
+    <div class="voting-status">{{ voting_status }}</div>
+    <table id="projects-table">
+        <tr>
+            <th onclick="sortTable(0, 'asc')">№</th>
+            <th onclick="sortTable(1, 'asc')">Название проекта</th>
+            <th onclick="sortTable(2, 'desc')">Голоса</th>
+            <th onclick="sortTable(3, 'asc')">Местоположение</th>
+            <th onclick="sortTable(4, 'desc')">Бюджет (тенге)</th>
+            <th>Дата создания</th>
+            <th>Статус</th>
+            <th>Изображение</th>
+        </tr>
+        {% for project in projects %}
+        <tr {% if project.title == "Благоустройство детской площадки во дворе дома по ул. Алтынсарина, 7" %}class="highlight-altynsarina"{% endif %}>
+            <td>{{ loop.index }}</td>
+            <td>{{ project.title }}</td>
+            <td>{{ project.votes_count }}</td>
+            <td>{{ project.location }}</td>
+            <td>{{ project.amount }}</td>
+            <td>{{ project.create_date }}</td>
+            <td class="status-approved">{{ project.status }}</td>
+            <td>
+                {% if project.images %}
+                <img src="{{ project.images }}" alt="Изображение проекта">
+                {% else %}
+                Нет изображения
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
